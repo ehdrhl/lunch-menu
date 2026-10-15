@@ -1,0 +1,20 @@
+# /etc/systemd/system/lunch-picker.service (예시). User 와 경로는 서버에 맞게 바꾼다.
+#   sudo systemctl daemon-reload && sudo systemctl enable --now lunch-picker
+[Unit]
+Description=Lunch Picker API (FastAPI)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=lunch
+WorkingDirectory=/opt/lunch-picker/backend
+# backend/.env 에 DATABASE_URL, CORS_ORIGINS, TRUST_PROXY=true 를 둔다. (.env 권한은 600)
+# 워커는 1개로 둔다: 로그인 속도 제한이 프로세스 메모리에 있다.
+ExecStart=/opt/lunch-picker/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8001
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
